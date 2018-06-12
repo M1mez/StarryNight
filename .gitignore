@@ -3,6 +3,9 @@
 #########################
 
 # build files
+.vs/
+bin/
+
 openFrameworks.a
 openFrameworksDebug.a
 openFrameworksUniversal.a
