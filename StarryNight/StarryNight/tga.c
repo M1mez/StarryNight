@@ -54,7 +54,7 @@ void tgaLoadHeader(FILE *file, tgaInfo *info) {
 	swap_16bit_word((uint16_t*)&info->height);
 #endif // __APPLE__
 
-#if 0 // debug
+#if 1 // debug
 	printf("Image dimensions: %d %d %d\n",
 		info->width, info->height, info->pixelDepth);
 #endif

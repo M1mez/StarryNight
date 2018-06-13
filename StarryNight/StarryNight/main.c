@@ -2,7 +2,7 @@
 
 char * skybox = "glacier";
 char * singleTga = "cristina.tga";
-int wantSkybox = 0;
+int wantSkybox = 1;
 
 int main(int argc, char **argv)
 {
@@ -316,6 +316,7 @@ void init(int width, int height)
 			mode = info->pixelDepth / 8;  // will be 3 for rgb, 4 for rgba
 			glGenTextures(1, &texture[i]);
 
+			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glBindTexture(GL_TEXTURE_2D, texture[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
