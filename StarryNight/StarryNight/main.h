@@ -2,6 +2,8 @@
 
 #include <stdlib.h> // for exit
 #include <stdio.h>
+#include <string>
+#include <cstring>
 
 #include <glut.h> 
 #include <GL/gl.h>  
@@ -23,7 +25,7 @@
 #endif 
 
 int window;
-float advance = 0.0f;
+float advanceByKey = 0.0f;
 GLuint texture[6];
 GLuint singleTexture;
 int animating = 1;

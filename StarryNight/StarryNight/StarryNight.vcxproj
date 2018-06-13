@@ -123,8 +123,8 @@
     <ClInclude Include="tga.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c" />
-    <ClCompile Include="tga.c" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="tga.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

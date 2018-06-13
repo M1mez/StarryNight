@@ -14,9 +14,9 @@ typedef struct {
 
 typedef enum cubeSide {FRONT, BACK, TOP, BOTTOM, RIGHT, LEFT} cubeSide;
 
-tgaInfo* tgaFromFolder(char *filename, cubeSide side);
+tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side);
 
-tgaInfo* tgaLoad(char *filename);
+tgaInfo* tgaLoad(const char *filename);
 
 int tgaSave(char			*filename, 
 			 short int		width, 

@@ -7,8 +7,11 @@
 #include <glut.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+//#include <string.h>
 
+#include <cstring>
+#include <string>
+#include <iostream>
 #include "tga.h"
 
 // this variable is used for image series
@@ -25,6 +28,8 @@ swap_16bit_word(uint16_t *word)
 	block[0] = tmp;
 }
 #endif
+
+using namespace std;
 
 // load the image header fields. We only keep those that matter!
 void tgaLoadHeader(FILE *file, tgaInfo *info) {
@@ -96,52 +101,66 @@ void tgaLoadImageData(FILE *file, tgaInfo *info) {
 		}
 }
 
-tgaInfo* tgaFromFolder(char *filename, cubeSide side) {
+tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side) {
 	// folder + filename + '/' (1) + filename  + side identifier (3) + fileending (4) + null terminator (1)
-	char *folder = "skyboxes/";
-	char *result = malloc(strlen(folder) + strlen(filename) + 1 + strlen(filename) + 3 + 4 + 1);
+	string folder = "skyboxes/";
+	string result = folder + filename + '/' + filename;
+		//malloc(strlen(folder) + strlen(filename) + 1 + strlen(filename) + 3 + 4 + 1);
 
 #pragma warning(disable:4996)
-	strcpy(result, folder);
+	/*strcpy(result, folder);
 	strcat(result, filename);
 	strcat(result, "/");
-	strcat(result, filename);
+	strcat(result, filename);*/
+
+	string front = "_ft";
+	string back = "_bk";
+	string top = "_up";
+	string bottom = "_dn";
+	string right = "_rt";
+	string left = "_lf";
 
 	switch (side)
 	{
 	case FRONT: {
-		strcat(result, "_ft");
+		result += !inside ? front : back;
+		cout << result << endl;
 		break;
 	}
 	case BACK: {
-		strcat(result, "_bk");
+		result += inside ? front : back;
+		cout << result << endl;
 		break;
 	}
 	case TOP: {
-		strcat(result, "_up");
+		result += "_up";
+		cout << result << endl;
 		break;
 	}
 	case BOTTOM: {
-		strcat(result, "_dn");
+		result += "_dn";
+		cout << result << endl;
 		break;
 	}
 	case RIGHT: {
-		strcat(result, "_rt");
+		result += inside ? right : left;
+		cout << result << endl;
 		break;
 	}
 	case LEFT: {
-		strcat(result, "_lf");
+		result += !inside ? right : left;
+		cout << result << endl;
 		break;
 	}
 	}
-	strcat(result, ".tga");
+	result += ".tga";
 
-	return tgaLoad(result);
+	return tgaLoad(result.c_str());
 }
 
 // this is the function to call when we want to load
 // an image
-tgaInfo * tgaLoad(char *filename) {
+tgaInfo * tgaLoad(const char *filename) {
 
 	FILE *file;
 	tgaInfo *info;

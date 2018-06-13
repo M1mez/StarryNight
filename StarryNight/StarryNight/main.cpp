@@ -1,8 +1,12 @@
 #include "main.h"
 
-char * skybox = "glacier";
-char * singleTga = "cristina.tga";
+using namespace std;
+
+string skybox = "glacier";
+string singleTga = "crate.tga";
 int wantSkybox = 1;
+int wantFullScreen = 0;
+int insideSkyBox = 1;
 
 int main(int argc, char **argv)
 {
@@ -19,7 +23,7 @@ int main(int argc, char **argv)
 	glutTimerFunc(15, timer, 1);
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
-	//glutFullScreen();
+	if (wantFullScreen) glutFullScreen();
 	glutMainLoop();
 	return 0;
 }
@@ -54,11 +58,11 @@ void specialKeyPressed(int key, int x, int y)
 	switch (key) {
 
 	case GLUT_KEY_UP:     /* <cursor up> */
-		advance += 0.1f;
+		advanceByKey += 0.1f;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:     /* <cursor down> */
-		advance -= 0.1f;
+		advanceByKey -= 0.1f;
 		glutPostRedisplay();
 		break;
 	}
@@ -160,10 +164,10 @@ void drawCube()
 	}
 
 	// top face
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, -1.0f);
 
 	if (wantSkybox) {
 		glEnd();
@@ -172,10 +176,10 @@ void drawCube()
 	}
 
 	// bottom face
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
 
 	if (wantSkybox) {
 		glEnd();
@@ -204,40 +208,6 @@ void drawCube()
 
 	glDisable(GL_TEXTURE_2D);
 }
-//
-//void drawSkyBox() {
-//	glBegin(GL_QUADS);        // Draw The Cube Using quads
-//	glTexCoord2f(0.0f, 0.0f);  glVertex3f(1.0f, 1.0f, -1.0f);    // Top Right Of The Quad (Top)
-//	glTexCoord2f(1.0f, 0.0f);  glVertex3f(-1.0f, 1.0f, -1.0f);    // Top Left Of The Quad (Top)
-//	glVertex3f(-1.0f, 1.0f, 1.0f);    // Bottom Left Of The Quad (Top)
-//	glVertex3f(1.0f, 1.0f, 1.0f);    // Bottom Right Of The Quad (Top)
-//
-//	glVertex3f(1.0f, -1.0f, 1.0f);    // Top Right Of The Quad (Bottom)
-//	glVertex3f(-1.0f, -1.0f, 1.0f);    // Top Left Of The Quad (Bottom)
-//	glVertex3f(-1.0f, -1.0f, -1.0f);    // Bottom Left Of The Quad (Bottom)
-//	glVertex3f(1.0f, -1.0f, -1.0f);    // Bottom Right Of The Quad (Bottom)
-//
-//	glVertex3f(1.0f, 1.0f, 1.0f);    // Top Right Of The Quad (Front)
-//	glVertex3f(-1.0f, 1.0f, 1.0f);    // Top Left Of The Quad (Front)
-//	glVertex3f(-1.0f, -1.0f, 1.0f);    // Bottom Left Of The Quad (Front)
-//	glVertex3f(1.0f, -1.0f, 1.0f);    // Bottom Right Of The Quad (Front)
-//
-//	glVertex3f(1.0f, -1.0f, -1.0f);    // Top Right Of The Quad (Back)
-//	glVertex3f(-1.0f, -1.0f, -1.0f);    // Top Left Of The Quad (Back)
-//	glVertex3f(-1.0f, 1.0f, -1.0f);    // Bottom Left Of The Quad (Back)
-//	glVertex3f(1.0f, 1.0f, -1.0f);    // Bottom Right Of The Quad (Back)
-//
-//	glVertex3f(-1.0f, 1.0f, 1.0f);    // Top Right Of The Quad (Left)
-//	glVertex3f(-1.0f, 1.0f, -1.0f);    // Top Left Of The Quad (Left)
-//	glVertex3f(-1.0f, -1.0f, -1.0f);    // Bottom Left Of The Quad (Left)
-//	glVertex3f(-1.0f, -1.0f, 1.0f);    // Bottom Right Of The Quad (Left)
-//
-//	glVertex3f(1.0f, 1.0f, -1.0f);    // Top Right Of The Quad (Right)
-//	glVertex3f(1.0f, 1.0f, 1.0f);    // Top Left Of The Quad (Right)
-//	glVertex3f(1.0f, -1.0f, 1.0f);    // Bottom Left Of The Quad (Right)
-//	glVertex3f(1.0f, -1.0f, -1.0f);    // Bottom Right Of The Quad (Right)
-//	glEnd();
-//}
 #pragma endregion
 
 #pragma region display
@@ -253,25 +223,9 @@ void display()
 		0., 1., 0.);
 
 
-	glTranslatef(0, 0, -advance);
+	glTranslatef(0, 0, -advanceByKey);
 
 	glPushMatrix();
-	glTranslatef(-2, 0, 0);
-	glTranslatef(0, 0, 4);
-	drawCube();
-	glTranslatef(0, 0, -4);
-	drawCube();
-	glTranslatef(0, 0, -4);
-	drawCube();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(2, 0, 0);
-	glTranslatef(0, 0, 4);
-	drawCube();
-	glTranslatef(0, 0, -4);
-	drawCube();
-	glTranslatef(0, 0, -4);
 	drawCube();
 	glPopMatrix();
 
@@ -295,12 +249,10 @@ void init(int width, int height)
 	tgaInfo *info = 0;
 	int mode;
 
-	//info = tgaLoad("crate.tga");
-
 	if (wantSkybox) {
-		for (size_t i = 0; i < 6; i++)
+		for (int i = 0; i < 6; i++)
 		{
-			info = tgaFromFolder(skybox, i);
+			info = tgaFromFolder(skybox.c_str(), insideSkyBox, cubeSide(i));
 
 			if (info->status != TGA_OK) {
 				fprintf(stderr, "error loading texture image: %d\n", info->status);
@@ -339,7 +291,7 @@ void init(int width, int height)
 		}
 	}
 	else {
-		info = tgaLoad(singleTga);
+		info = tgaLoad(singleTga.c_str());
 
 		if (info->status != TGA_OK) {
 			fprintf(stderr, "error loading texture image: %d\n", info->status);
@@ -357,6 +309,7 @@ void init(int width, int height)
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glBindTexture(GL_TEXTURE_2D, singleTexture);
+		//TODO WHERE IS GL_CLAMP_TO_BORDER????
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
