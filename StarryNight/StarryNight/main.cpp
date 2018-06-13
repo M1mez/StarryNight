@@ -1,4 +1,5 @@
 #include "main.h"
+#include <iostream>
 
 using namespace std;
 
@@ -7,19 +8,22 @@ string singleTga = "crate.tga";
 int wantSkybox = 1;
 int wantFullScreen = 0;
 int insideSkyBox = 1;
+float skyBoxEdgeLength = 20.0f;
+
+float playerSpeed = 1;
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
-	glutInitWindowSize(640, 480);
+	glutInitWindowSize(1280, 960);
 	glutInitWindowPosition(0, 0);
 	window = glutCreateWindow("Starry Night");
 	glutDisplayFunc(&display);
 	glutReshapeFunc(&resize);
 	glutKeyboardFunc(&keyPressed);
 	glutSpecialFunc(&specialKeyPressed);
-	init(640, 480);
+	init(1280, 960);
 	glutTimerFunc(15, timer, 1);
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
@@ -34,7 +38,7 @@ void reportGLError(const char * msg)
 	const GLubyte *errString;
 	while ((errCode = glGetError()) != GL_NO_ERROR) {
 		errString = gluErrorString(errCode);
-		fprintf(stderr, "OpenGL Error: %s %s\n", msg, errString);
+		fprintf(stderr, "OpenGL Error: %s %p\n", msg, errString);
 	}
 	return;
 }
@@ -55,27 +59,77 @@ void resize(int width, int height)
 #pragma region keyPressed
 void specialKeyPressed(int key, int x, int y)
 {
-	switch (key) {
+	float xrotrad = (angle_x / 180 * M_PI);
+	float yrotrad = (angle_y / 180 * M_PI);
+	float sinYrot = float(sin(yrotrad));
+	float cosYrot = float(cos(yrotrad));
 
-	case GLUT_KEY_UP:     /* <cursor up> */
-		advanceByKey += 0.1f;
+	cout << "sin: " << sinYrot << " cos: " << cosYrot << endl;
+	switch (key) { 
+
+	case GLUT_KEY_UP:
+		playerPosX -= sinYrot * playerSpeed / 10;
+		playerPosZ += cosYrot * playerSpeed / 10;
 		glutPostRedisplay();
 		break;
-	case GLUT_KEY_DOWN:     /* <cursor down> */
-		advanceByKey -= 0.1f;
+	case GLUT_KEY_DOWN:
+		playerPosX += sinYrot * playerSpeed / 10;
+		playerPosZ -= cosYrot * playerSpeed / 10;
 		glutPostRedisplay();
 		break;
+	case GLUT_KEY_RIGHT:
+		playerPosX -= cosYrot * playerSpeed / 50;
+		playerPosZ -= sinYrot * playerSpeed / 50;
+		glutPostRedisplay();
+		break;
+	case GLUT_KEY_LEFT:
+		playerPosX += cosYrot * playerSpeed / 50;
+		playerPosZ += sinYrot * playerSpeed / 50;
+		glutPostRedisplay();
+		break;
+	default: break;
 	}
 }
 
 void keyPressed(unsigned char key, int x, int y)
 {
 	switch (key) {
+	case 'w':
+	case 'W':
+	{
+		specialKeyPressed(GLUT_KEY_UP, x, y);
+		break;
+	}
+	case 's':
+	case 'S':
+	{
+		specialKeyPressed(GLUT_KEY_DOWN, x, y);
+		break;
+	}
+	case 'a':
+	case 'A':
+	{
+		specialKeyPressed(GLUT_KEY_LEFT, x, y);
+		break;
+	}
+	case 'd':
+	case 'D':
+	{
+		specialKeyPressed(GLUT_KEY_RIGHT, x, y);
+		break;
+	}
+	case 'r':
+	case 'R':
+		playerPosX = 0.0f;
+		playerPosZ = 0.0f;
+		angle_x = 0;
+		angle_y = 0;
+		break;
 	case 27:
 		glutDestroyWindow(window);
 		exit(0);
 		break;
-	case 'a':
+	case 'q':
 		animating = animating ? 0 : 1;
 		glutPostRedisplay();
 		break;
@@ -89,18 +143,28 @@ void keyPressed(unsigned char key, int x, int y)
 void mouse(int button, int state, int x, int y)
 {
 	switch (button) {
-	case GLUT_LEFT_BUTTON:    /* spin scene around */
+	case GLUT_LEFT_BUTTON:
 		if (state == GLUT_DOWN) {
-			moving = 1;
+			leftPressed = 1;
 			begin_x = x;
 			begin_y = y;
 
 		}
 		else if (state == GLUT_UP) {
-			moving = 0;
+			leftPressed = 0;
+			cout << angle_x << "<- x y -> " << angle_y << endl;
 		}
 		break;
-
+	case GLUT_RIGHT_BUTTON:
+		if (state == GLUT_DOWN)
+		{
+			//TODO shooting star appears
+		}
+		else if (state == GLUT_UP)
+		{
+			//TODO shooting star fades out, or nothing
+		}
+		break;
 	default:
 		break;
 	}
@@ -111,15 +175,15 @@ void mouse(int button, int state, int x, int y)
 
 void mouseMotion(int x, int y) {
 
-	if (moving) { /* mouse button is pressed */
+	if (leftPressed) {
 
-				  /* calculate new modelview matrix values */
+
 		angle_y = angle_y + (x - begin_x);
 		angle_x = angle_x + (y - begin_y);
-		if (angle_x > 360.0) angle_x -= 360.0;
-		else if (angle_x < -360.0) angle_x += 360.0;
-		if (angle_y > 360.0) angle_y -= 360.0;
-		else if (angle_y < -360.0) angle_y += 360.0;
+		if (angle_x >= 360.0) angle_x -= 360.0;
+		else if (angle_x <= -360.0) angle_x += 360.0;
+		if (angle_y >= 360.0) angle_y -= 360.0;
+		else if (angle_y <= -360.0) angle_y += 360.0;
 
 		begin_x = x;
 		begin_y = y;
@@ -140,10 +204,10 @@ void drawCube()
 
 	glBegin(GL_QUADS);
 	// front face
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
 
 	if (wantSkybox) {
 		glEnd();
@@ -152,10 +216,10 @@ void drawCube()
 	}
 
 	// back face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
 
 	if (wantSkybox) {
 		glEnd();
@@ -164,10 +228,10 @@ void drawCube()
 	}
 
 	// top face
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
 
 	if (wantSkybox) {
 		glEnd();
@@ -176,10 +240,10 @@ void drawCube()
 	}
 
 	// bottom face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
 
 	if (wantSkybox) {
 		glEnd();
@@ -188,10 +252,10 @@ void drawCube()
 	}
 
 	// right face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
 
 	if (wantSkybox) {
 		glEnd();
@@ -200,10 +264,10 @@ void drawCube()
 	}
 
 	// left face
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -223,7 +287,7 @@ void display()
 		0., 1., 0.);
 
 
-	glTranslatef(0, 0, -advanceByKey);
+	glTranslatef(playerPosX, 0, playerPosZ);
 
 	glPushMatrix();
 	drawCube();
@@ -271,8 +335,8 @@ void init(int width, int height)
 			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glBindTexture(GL_TEXTURE_2D, texture[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdlib.h> // for exit
-#include <stdio.h>
+#include <cstdlib> // for exit
+#include <cstdio>
 #include <string>
 #include <cstring>
 
@@ -9,7 +9,7 @@
 #include <GL/gl.h>  
 #include <GL/glu.h> 
 #include "tga.h"
-#include <math.h>
+#include <cmath>
 
 /* some math.h files don't define pi... */
 #ifndef M_PI
@@ -25,12 +25,15 @@
 #endif 
 
 int window;
-float advanceByKey = 0.0f;
+
+float playerPosX = 0.0f;
+float playerPosZ = 0.0f;
+
 GLuint texture[6];
 GLuint singleTexture;
 int animating = 1;
 
-int moving = 0;     /* flag that is true while mouse moves */
+int leftPressed = 0;     /* flag that is true while mouse moves */
 int begin_x = 0;        /* x value of mouse movement */
 int begin_y = 0;      /* y value of mouse movement */
 GLfloat angle_y = 0;  /* angle of spin around y axis of scene, in degrees */
