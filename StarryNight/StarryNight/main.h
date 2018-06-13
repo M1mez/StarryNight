@@ -26,8 +26,19 @@
 
 int window;
 
+int wantSkybox = 1;
+int wantFullScreen = 0;
+int insideSkyBox = 1;
+float skyBoxEdgeLength = 50.0f;
+float playerSpeed = skyBoxEdgeLength / 10;
+float particleSphereRadius = (skyBoxEdgeLength / 2);
+float particleBoundary = particleSphereRadius - 10;
+float planetRadius = skyBoxEdgeLength / 6 / 2; //fifth of skybox, radius is half that
+
+
 float playerPosX = 0.0f;
 float playerPosZ = 0.0f;
+float playerPosY = planetRadius;
 
 GLuint texture[6];
 GLuint singleTexture;

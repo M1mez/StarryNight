@@ -2,22 +2,18 @@
 #include <iostream>
 
 using namespace std;
+#define GL_CLAMP_TO_EDGE 0x812F
 
 string skybox = "glacier";
 string singleTga = "crate.tga";
-int wantSkybox = 1;
-int wantFullScreen = 0;
-int insideSkyBox = 1;
-float skyBoxEdgeLength = 20.0f;
 
-float playerSpeed = 1;
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
 	glutInitWindowSize(1280, 960);
-	glutInitWindowPosition(0, 0);
+	glutInitWindowPosition(GLUT_SCREEN_HEIGHT, GLUT_SCREEN_WIDTH);
 	window = glutCreateWindow("Starry Night");
 	glutDisplayFunc(&display);
 	glutReshapeFunc(&resize);
@@ -78,13 +74,13 @@ void specialKeyPressed(int key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
-		playerPosX -= cosYrot * playerSpeed / 50;
-		playerPosZ -= sinYrot * playerSpeed / 50;
+		playerPosX -= cosYrot * playerSpeed / 25;
+		playerPosZ -= sinYrot * playerSpeed / 25;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_LEFT:
-		playerPosX += cosYrot * playerSpeed / 50;
-		playerPosZ += sinYrot * playerSpeed / 50;
+		playerPosX += cosYrot * playerSpeed / 25;
+		playerPosZ += sinYrot * playerSpeed / 25;
 		glutPostRedisplay();
 		break;
 	default: break;
@@ -122,6 +118,7 @@ void keyPressed(unsigned char key, int x, int y)
 	case 'R':
 		playerPosX = 0.0f;
 		playerPosZ = 0.0f;
+		playerPosY = planetRadius;
 		angle_x = 0;
 		angle_y = 0;
 		break;
@@ -285,9 +282,8 @@ void display()
 	gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
 		0., 0., 0.,
 		0., 1., 0.);
-
-
-	glTranslatef(playerPosX, 0, playerPosZ);
+	
+	glTranslatef(playerPosX, playerPosY, playerPosZ);
 
 	glPushMatrix();
 	drawCube();
@@ -335,8 +331,8 @@ void init(int width, int height)
 			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glBindTexture(GL_TEXTURE_2D, texture[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
