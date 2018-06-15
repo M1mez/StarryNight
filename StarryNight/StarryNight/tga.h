@@ -5,6 +5,8 @@
 #define TGA_ERROR_COMPRESSED_FILE		-1
 #define TGA_OK							         0
 
+using namespace std;
+
 typedef struct {
 	int status;
 	unsigned char type, pixelDepth;
@@ -12,9 +14,9 @@ typedef struct {
 	unsigned char *imageData;
 } tgaInfo;
 
-typedef enum cubeSide {FRONT, BACK, TOP, BOTTOM, RIGHT, LEFT} cubeSide;
+typedef enum cubeSide { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK} cubeSide;
 
-tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side);
+tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side, string folder);
 
 tgaInfo* tgaLoad(const char *filename);
 

@@ -119,10 +119,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="helper.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="tga.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tga.cpp" />
   </ItemGroup>

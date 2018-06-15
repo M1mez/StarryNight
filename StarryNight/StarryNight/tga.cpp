@@ -101,9 +101,8 @@ void tgaLoadImageData(FILE *file, tgaInfo *info) {
 		}
 }
 
-tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side) {
+tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side, string folder) {
 	// folder + filename + '/' (1) + filename  + side identifier (3) + fileending (4) + null terminator (1)
-	string folder = "skyboxes/";
 	string result = folder + filename + '/' + filename;
 		//malloc(strlen(folder) + strlen(filename) + 1 + strlen(filename) + 3 + 4 + 1);
 
@@ -113,42 +112,42 @@ tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side) {
 	strcat(result, "/");
 	strcat(result, filename);*/
 
-	string front = "_ft";
-	string back = "_bk";
-	string top = "_up";
-	string bottom = "_dn";
-	string right = "_rt";
-	string left = "_lf";
+	string right = "_right1";
+	string left = "_left2";
+	string top = "_top3";
+	string bottom = "_bottom4";
+	string front = "_front5";
+	string back = "_back6";
 
 	switch (side)
 	{
 	case FRONT: {
-		result += !inside ? front : back;
+		result += front;
 		cout << result << endl;
 		break;
 	}
 	case BACK: {
-		result += inside ? front : back;
+		result += back;
 		cout << result << endl;
 		break;
 	}
 	case TOP: {
-		result += "_up";
+		result += top;
 		cout << result << endl;
 		break;
 	}
 	case BOTTOM: {
-		result += "_dn";
+		result += bottom;
 		cout << result << endl;
 		break;
 	}
 	case RIGHT: {
-		result += inside ? right : left;
+		result += inside ? left : right;
 		cout << result << endl;
 		break;
 	}
 	case LEFT: {
-		result += !inside ? right : left;
+		result += inside ? right : left;
 		cout << result << endl;
 		break;
 	}

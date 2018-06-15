@@ -1,15 +1,15 @@
 #include "main.h"
 #include <iostream>
 
-using namespace std;
 #define GL_CLAMP_TO_EDGE 0x812F
-
-string skybox = "glacier";
-string singleTga = "crate.tga";
 
 
 int main(int argc, char **argv)
 {
+	srand(time(nullptr));
+	amountOfCubemaps = getCountOfNamesContainingString(skyboxFolder, skyboxString);
+	skyboxString += char('0' + rand() % amountOfCubemaps + 1);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
 	glutInitWindowSize(1280, 960);
@@ -57,30 +57,30 @@ void specialKeyPressed(int key, int x, int y)
 {
 	float xrotrad = (angle_x / 180 * M_PI);
 	float yrotrad = (angle_y / 180 * M_PI);
-	float sinYrot = float(sin(yrotrad));
-	float cosYrot = float(cos(yrotrad));
+	//float sinf(yrotrad) = float(sin(yrotrad));
+	//float cosf(yrotrad) = float(cos(yrotrad));
 
-	cout << "sin: " << sinYrot << " cos: " << cosYrot << endl;
-	switch (key) { 
+	cout << "sin: " << sinf(yrotrad) << " cos: " << cosf(yrotrad) << endl;
+	switch (key) {
 
 	case GLUT_KEY_UP:
-		playerPosX -= sinYrot * playerSpeed / 10;
-		playerPosZ += cosYrot * playerSpeed / 10;
+		playerPosX -= sinf(yrotrad) * playerSpeed / 10;
+		playerPosZ += cosf(yrotrad) * playerSpeed / 10;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
-		playerPosX += sinYrot * playerSpeed / 10;
-		playerPosZ -= cosYrot * playerSpeed / 10;
+		playerPosX += sinf(yrotrad) * playerSpeed / 10;
+		playerPosZ -= cosf(yrotrad) * playerSpeed / 10;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
-		playerPosX -= cosYrot * playerSpeed / 25;
-		playerPosZ -= sinYrot * playerSpeed / 25;
+		playerPosX -= cosf(yrotrad) * playerSpeed / 25;
+		playerPosZ -= sinf(yrotrad) * playerSpeed / 25;
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_LEFT:
-		playerPosX += cosYrot * playerSpeed / 25;
-		playerPosZ += sinYrot * playerSpeed / 25;
+		playerPosX += cosf(yrotrad) * playerSpeed / 25;
+		playerPosZ += sinf(yrotrad) * playerSpeed / 25;
 		glutPostRedisplay();
 		break;
 	default: break;
@@ -130,6 +130,12 @@ void keyPressed(unsigned char key, int x, int y)
 		animating = animating ? 0 : 1;
 		glutPostRedisplay();
 		break;
+	case '+':
+		inc += 0.005;
+		break;
+	case '-':
+		inc -= 0.005;
+		break;
 	default:
 		break;
 	}
@@ -169,14 +175,24 @@ void mouse(int button, int state, int x, int y)
 	glutPostRedisplay();
 }
 
-
 void mouseMotion(int x, int y) {
 
 	if (leftPressed) {
-
-
 		angle_y = angle_y + (x - begin_x);
-		angle_x = angle_x + (y - begin_y);
+		float newAngle = angle_x + (y - begin_y);
+		if (newAngle >= 90)
+		{
+			begin_x = x;
+			begin_y = y;
+			return;
+		}
+		if (newAngle <= -90)
+		{
+			begin_x = x;
+			begin_y = y;
+			return;
+		}
+		angle_x = newAngle;
 		if (angle_x >= 360.0) angle_x -= 360.0;
 		else if (angle_x <= -360.0) angle_x += 360.0;
 		if (angle_y >= 360.0) angle_y -= 360.0;
@@ -184,20 +200,58 @@ void mouseMotion(int x, int y) {
 
 		begin_x = x;
 		begin_y = y;
+
 		glutPostRedisplay();
 	}
 }
 #pragma endregion
 
 #pragma region draw
-void drawCube()
+void drawSphere(sphereType type)
+{
+	GLUquadricObj *sphere = nullptr;
+	int radius = 0;
+	GLuint texture = 0;
+
+	switch (type)
+	{
+	case PLANET:
+		sphere = planet;
+		radius = planetRadius;
+		texture = planetTexture;
+		break;
+	case MOON:
+		sphere = moon;
+		radius = moonRadius;
+		texture = moonTexture;
+		break;
+	case STAR:
+
+		break;
+	default: break;
+	}
+
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glBegin(GL_QUADS);
+
+	gluQuadricDrawStyle(sphere, GLU_FILL);
+	gluQuadricTexture(sphere, 1);
+	gluSphere(sphere, radius, 50, 50);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+void drawSkyBox()
 {
 	int textureCount = 0;
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-	if (wantSkybox) glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
-	else glBindTexture(GL_TEXTURE_2D, singleTexture);
+	if (cubeMapTexture) glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
+	else glBindTexture(GL_TEXTURE_2D, skyboxSingleTexture);
 
 	glBegin(GL_QUADS);
 	// front face
@@ -206,9 +260,9 @@ void drawCube()
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(-skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
 
-	if (wantSkybox) {
+	if (cubeMapTexture) {
 		glEnd();
-		glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
+		glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
 		glBegin(GL_QUADS);
 	}
 
@@ -218,9 +272,9 @@ void drawCube()
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, -skyBoxEdgeLength);
 
-	if (wantSkybox) {
+	if (cubeMapTexture) {
 		glEnd();
-		glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
+		glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
 		glBegin(GL_QUADS);
 	}
 
@@ -230,9 +284,9 @@ void drawCube()
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, -skyBoxEdgeLength);
 
-	if (wantSkybox) {
+	if (cubeMapTexture) {
 		glEnd();
-		glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
+		glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
 		glBegin(GL_QUADS);
 	}
 
@@ -242,9 +296,9 @@ void drawCube()
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(-skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
 
-	if (wantSkybox) {
+	if (cubeMapTexture) {
 		glEnd();
-		glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
+		glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
 		glBegin(GL_QUADS);
 	}
 
@@ -254,9 +308,9 @@ void drawCube()
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(skyBoxEdgeLength, skyBoxEdgeLength, skyBoxEdgeLength);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(skyBoxEdgeLength, -skyBoxEdgeLength, skyBoxEdgeLength);
 
-	if (wantSkybox) {
+	if (cubeMapTexture) {
 		glEnd();
-		glBindTexture(GL_TEXTURE_2D, texture[textureCount++]);
+		glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[textureCount++]);
 		glBegin(GL_QUADS);
 	}
 
@@ -277,16 +331,32 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	//gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0);
+	hour += inc;
+	day += inc / 24.0;
+	hour = hour - int(hour / 360) * 360;
+	day = day - int(day / 365) * 365;
 
 	gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
 		0., 0., 0.,
 		0., 1., 0.);
-	
-	glTranslatef(playerPosX, playerPosY, playerPosZ);
+	glTranslatef(playerPosX, -playerPosY, playerPosZ);
 
+	//planet position only changes if player moves (everything else as well)
+	drawSphere(PLANET);
+
+	// skybox rotates around planet
 	glPushMatrix();
-	drawCube();
+	glRotatef(360 * hour / 360, 0.0, 1.0, 0.0);
+	//gluPerspective(45.0f, 20, 0.5f, 300.0f);
+	drawSkyBox();
+	glPopMatrix();
+
+	//Moon
+	glPushMatrix();
+	float moonRot = 360.0 * day / 2;
+	glRotatef(moonRot, 0.0, 1.0, 0.0);
+	glTranslatef(sinf(moonRot/12) * (planetRadius * 5), 0, cosf(moonRot / 12) * (planetRadius * 5));
+	drawSphere(MOON);
 	glPopMatrix();
 
 
@@ -297,6 +367,8 @@ void display()
 #pragma region init
 void init(int width, int height)
 {
+	planet = gluNewQuadric();
+	moon = gluNewQuadric();
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LESS);
@@ -305,14 +377,16 @@ void init(int width, int height)
 
 	resize(width, height);
 
+	GLint format;
 	GLsizei w, h;
 	tgaInfo *info = 0;
 	int mode;
 
-	if (wantSkybox) {
+#pragma region skyBox
+	if (cubeMapTexture) {
 		for (int i = 0; i < 6; i++)
 		{
-			info = tgaFromFolder(skybox.c_str(), insideSkyBox, cubeSide(i));
+			info = tgaFromFolder(skyboxString.c_str(), insideSkyBox, cubeSide(i), skyboxFolder);
 
 			if (info->status != TGA_OK) {
 				fprintf(stderr, "error loading texture image: %d\n", info->status);
@@ -326,11 +400,11 @@ void init(int width, int height)
 			}
 
 			mode = info->pixelDepth / 8;  // will be 3 for rgb, 4 for rgba
-			glGenTextures(1, &texture[i]);
+			glGenTextures(1, &skyboxSideTextures[i]);
 
 			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glBindTexture(GL_TEXTURE_2D, texture[i]);
+			glBindTexture(GL_TEXTURE_2D, skyboxSideTextures[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -342,7 +416,7 @@ void init(int width, int height)
 			h = info->height;
 
 			reportGLError("before uploading texture");
-			GLint format = (mode == 4) ? GL_RGBA : GL_RGB;
+			format = (mode == 4) ? GL_RGBA : GL_RGB;
 			glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format,
 				GL_UNSIGNED_BYTE, info->imageData);
 			reportGLError("after uploading texture");
@@ -351,7 +425,7 @@ void init(int width, int height)
 		}
 	}
 	else {
-		info = tgaLoad(singleTga.c_str());
+		info = tgaLoad(singleCubeTga.c_str());
 
 		if (info->status != TGA_OK) {
 			fprintf(stderr, "error loading texture image: %d\n", info->status);
@@ -365,10 +439,10 @@ void init(int width, int height)
 		}
 
 		mode = info->pixelDepth / 8;  // will be 3 for rgb, 4 for rgba
-		glGenTextures(1, &singleTexture);
+		glGenTextures(1, &skyboxSingleTexture);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glBindTexture(GL_TEXTURE_2D, singleTexture);
+		glBindTexture(GL_TEXTURE_2D, skyboxSingleTexture);
 		//TODO WHERE IS GL_CLAMP_TO_BORDER????
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -381,13 +455,81 @@ void init(int width, int height)
 		h = info->height;
 
 		reportGLError("before uploading texture");
-		GLint format = (mode == 4) ? GL_RGBA : GL_RGB;
+		format = (mode == 4) ? GL_RGBA : GL_RGB;
 		glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format,
 			GL_UNSIGNED_BYTE, info->imageData);
 		reportGLError("after uploading texture");
 
 		tgaDestroy(info);
 	}
+#pragma endregion 
+
+#pragma region planet
+	info = tgaLoad((sphereFolder + planetTga).c_str());
+
+	if (info->status != TGA_OK) {
+		fprintf(stderr, "error loading texture image: %d\n", info->status);
+
+		return;
+	}
+
+	mode = info->pixelDepth / 8;  // will be 3 for rgb, 4 for rgba
+	glGenTextures(1, &planetTexture);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glBindTexture(GL_TEXTURE_2D, planetTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+	// Upload the texture bitmap. 
+	w = info->width;
+	h = info->height;
+
+	reportGLError("before uploading texture");
+	format = (mode == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format,
+		GL_UNSIGNED_BYTE, info->imageData);
+	reportGLError("after uploading texture");
+
+	tgaDestroy(info);
+#pragma endregion
+
+#pragma region moon
+	info = tgaLoad((sphereFolder + moonTga).c_str());
+
+	if (info->status != TGA_OK) {
+		fprintf(stderr, "error loading texture image: %d\n", info->status);
+
+		return;
+	}
+
+	mode = info->pixelDepth / 8;  // will be 3 for rgb, 4 for rgba
+	glGenTextures(1, &moonTexture);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glBindTexture(GL_TEXTURE_2D, moonTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+	// Upload the texture bitmap. 
+	w = info->width;
+	h = info->height;
+
+	reportGLError("before uploading texture");
+	format = (mode == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format,
+		GL_UNSIGNED_BYTE, info->imageData);
+	reportGLError("after uploading texture");
+
+	tgaDestroy(info);
+#pragma endregion
+
 }
 
 #pragma endregion
@@ -397,5 +539,4 @@ void timer(int value)
 	glutPostRedisplay();
 	glutTimerFunc(15, timer, 1);
 }
-
 
