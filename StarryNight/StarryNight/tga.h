@@ -1,6 +1,7 @@
 #pragma once
 
-#include "helper.h"
+#include "headers.h"
+//#include <string.h>
 
 #define	TGA_ERROR_FILE_OPEN				  -5
 #define TGA_ERROR_READING_FILE			-4
@@ -18,6 +19,7 @@ typedef struct {
 	unsigned char *imageData;
 } tgaInfo;
 
+typedef enum cubeSide { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK } cubeSide;
 
 tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side, string folder);
 

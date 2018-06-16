@@ -1,18 +1,10 @@
 // Based on public domain code by Antonio R. Fernandes <ajbrf@yahoo.com>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/glu.h>
-#include <glut.h>
-#include <stdio.h>
-#include <stdlib.h>
-//#include <string.h>
 
-#include <cstring>
-#include <string>
-#include <iostream>
 #include "tga.h"
+
+
+
 
 // this variable is used for image series
 static int savedImages = 0;

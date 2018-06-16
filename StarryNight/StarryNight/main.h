@@ -1,18 +1,9 @@
 #pragma once
 
-#include "helper.h"
 
-#include <cstdlib> // for exit
-#include <cstdio>
-#include <string>
-#include <cstring>
+#include "headers.h"
 
-#include <glut.h> 
-#include <GL/gl.h>  
-#include <GL/glu.h> 
-#include "tga.h"
-#include <cmath>
-#include <ctime>
+
 
 using namespace std;
 
@@ -32,8 +23,8 @@ string singleCubeTga = "crate.tga";
 
 // self setting variables
 int amountOfCubemaps;
-float StarSpawnMaxRadius = (skyBoxEdgeLength / 2);
-float StarSpawnMinRadius = StarSpawnMaxRadius - skyBoxEdgeLength * 2;
+float starSpawnMaxRadius = (skyBoxEdgeLength / 2);
+float starSpawnMinRadius = starSpawnMaxRadius - 10;
 
 int animating = 1;
 float hour = 0.0;
@@ -56,6 +47,11 @@ GLUquadricObj *moon;
 float moonRadius = planetRadius / 3.7;
 GLuint moonTexture;
 string moonTga = "moonLight.tga";
+
+// star
+const int starCount = 20;
+struct star stars[starCount];
+
 
 // player
 float playerPosX = 0.0f;

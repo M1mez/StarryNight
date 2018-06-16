@@ -1,5 +1,6 @@
+
 #include "main.h"
-#include <iostream>
+#include "glut.h"
 
 #define GL_CLAMP_TO_EDGE 0x812F
 
@@ -9,6 +10,11 @@ int main(int argc, char **argv)
 	srand(time(nullptr));
 	amountOfCubemaps = getCountOfNamesContainingString(skyboxFolder, skyboxString);
 	skyboxString += char('0' + rand() % amountOfCubemaps + 1);
+
+	for (int i = 0; i < starCount; i++)
+	{
+		fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
+	}
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
@@ -62,8 +68,8 @@ void specialKeyPressed(int key, int x, int y)
 	//float cxp = cosf(RAD(angle_y));
 	//float cyp = 1;
 
-
 	float yrotrad = RAD(angle_y);
+
 	cout << "sin: " << sinf(yrotrad) << " cos: " << cosf(yrotrad) << endl;
 
 	keepFloatBelow360(&pitch);
@@ -252,7 +258,7 @@ void mouseMotion(int x, int y) {
 #pragma endregion
 
 #pragma region draw
-void drawSphere(sphereType type)
+void drawSphere(sphereType type, int index = 0)
 {
 	GLUquadricObj *sphere = nullptr;
 	int radius = 0;
@@ -271,7 +277,11 @@ void drawSphere(sphereType type)
 		texture = moonTexture;
 		break;
 	case STAR:
-
+		star s = stars[index];
+		fillStar(s, starSpawnMinRadius, starSpawnMaxRadius);
+		sphere = s.starObj;
+		cout << s.size << endl;
+		radius = s.size;
 		break;
 	default: break;
 	}
@@ -279,6 +289,7 @@ void drawSphere(sphereType type)
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	glBegin(GL_QUADS);
 
@@ -418,6 +429,17 @@ void display()
 	glRotatef(360 * hour / 360, 0.0, 1.0, 0.0);
 	//gluPerspective(45.0f, 20, 0.5f, 300.0f);
 	drawSkyBox();
+	for (int i = 0; i < starCount; i++)
+	{
+		glPushMatrix();
+		glColor4f(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2],1);
+		//fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
+		//cout << stars[i].vec[0] << "  " << stars[i].vec[1] << "  " << stars[i].vec[2] << endl;
+		//cout << stars[i].size << endl;
+		glTranslatef(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2]);
+		drawSphere(STAR, i);
+		glPopMatrix();
+	}
 	glPopMatrix();
 
 	//Moon
@@ -443,11 +465,13 @@ void init(int width, int height)
 {
 	planet = gluNewQuadric();
 	moon = gluNewQuadric();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
+	//glEnable(GL_LIGHTING);
 
 	resize(width, height);
 
