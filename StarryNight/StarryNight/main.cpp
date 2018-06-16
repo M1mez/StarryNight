@@ -55,32 +55,76 @@ void resize(int width, int height)
 #pragma region keyPressed
 void specialKeyPressed(int key, int x, int y)
 {
-	float xrotrad = (angle_x / 180 * M_PI);
-	float yrotrad = (angle_y / 180 * M_PI);
-	//float sinf(yrotrad) = float(sin(yrotrad));
-	//float cosf(yrotrad) = float(cos(yrotrad));
+	//float pitchedX = pitch + angle_y;
 
+	//float sxp = sinf(RAD(angle_y));
+	//float syp = 1;//sinf(RAD(1));
+	//float cxp = cosf(RAD(angle_y));
+	//float cyp = 1;
+
+
+	float yrotrad = RAD(angle_y);
 	cout << "sin: " << sinf(yrotrad) << " cos: " << cosf(yrotrad) << endl;
+
+	keepFloatBelow360(&pitch);
+	keepFloatBelow360(&yaw);
+	keepFloatBelow360(&roll);
+
 	switch (key) {
 
 	case GLUT_KEY_UP:
-		playerPosX -= sinf(yrotrad) * playerSpeed / 10;
-		playerPosZ += cosf(yrotrad) * playerSpeed / 10;
+		if (playerShouldMove)
+		{
+			playerPosX -= sinf(yrotrad) * playerSpeed / 10;
+			playerPosZ += cosf(yrotrad) * playerSpeed / 10;
+		}
+		else
+		{
+			pitch += cosf(yrotrad);
+			//yaw += sinf(yrotrad);
+			roll += sinf(yrotrad);
+/*
+			pitch -= cxp * -syp;
+			yaw += sxp;
+			roll -= cxp * -cyp;*/
+
+		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
-		playerPosX += sinf(yrotrad) * playerSpeed / 10;
-		playerPosZ -= cosf(yrotrad) * playerSpeed / 10;
+		if (playerShouldMove)
+		{
+			playerPosX += sinf(yrotrad) * playerSpeed / 10;
+			playerPosZ -= cosf(yrotrad) * playerSpeed / 10;
+		}
+		else
+		{
+
+		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
-		playerPosX -= cosf(yrotrad) * playerSpeed / 25;
-		playerPosZ -= sinf(yrotrad) * playerSpeed / 25;
+		if (playerShouldMove)
+		{
+			playerPosX -= cosf(yrotrad) * playerSpeed / 25;
+			playerPosZ -= sinf(yrotrad) * playerSpeed / 25;
+		}
+		else
+		{
+
+		}
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_LEFT:
-		playerPosX += cosf(yrotrad) * playerSpeed / 25;
-		playerPosZ += sinf(yrotrad) * playerSpeed / 25;
+		if (playerShouldMove)
+		{
+			playerPosX += cosf(yrotrad) * playerSpeed / 25;
+			playerPosZ += sinf(yrotrad) * playerSpeed / 25;
+		}
+		else
+		{
+
+		}
 		glutPostRedisplay();
 		break;
 	default: break;
@@ -121,6 +165,9 @@ void keyPressed(unsigned char key, int x, int y)
 		playerPosY = planetRadius;
 		angle_x = 0;
 		angle_y = 0;
+		yaw = 0;
+		roll = 0;
+		pitch = 0;
 		break;
 	case 27:
 		glutDestroyWindow(window);
@@ -174,9 +221,9 @@ void mouse(int button, int state, int x, int y)
 
 	glutPostRedisplay();
 }
-
 void mouseMotion(int x, int y) {
 
+	cout << "x: " << angle_x << " y: " << angle_y << endl;
 	if (leftPressed) {
 		angle_y = angle_y + (x - begin_x);
 		float newAngle = angle_x + (y - begin_y);
@@ -193,10 +240,8 @@ void mouseMotion(int x, int y) {
 			return;
 		}
 		angle_x = newAngle;
-		if (angle_x >= 360.0) angle_x -= 360.0;
-		else if (angle_x <= -360.0) angle_x += 360.0;
-		if (angle_y >= 360.0) angle_y -= 360.0;
-		else if (angle_y <= -360.0) angle_y += 360.0;
+		keepFloatBelow360(&angle_x);
+		keepFloatBelow360(&angle_y);
 
 		begin_x = x;
 		begin_y = y;
@@ -339,10 +384,34 @@ void display()
 	gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
 		0., 0., 0.,
 		0., 1., 0.);
-	glTranslatef(playerPosX, -playerPosY, playerPosZ);
+
+	/*glRotatef(angle_y, 0, 1, 0);
+	glRotatef(angle_x, 1, 0, 0);*/
+
+	glTranslatef(0, -(planetRadius + 2), 0);
+
+
+	glRotatef(yaw, 0.0f, 1.0f, 0.0f);
+	glRotatef(pitch, 1.0f, 0.0f, 0.0f);
+	glRotatef(roll, 0.0f, 0.0f, 1.0f);
+
+
+	/*glTranslatef(0, -playerPosY, 0);
+	if (playerShouldMove)
+	{
+		glTranslatef(playerPosX, 0, playerPosZ);
+	}
+	else
+	{
+
+		glRotatef(pitch, 1, 0, 0);
+		glRotatef(roll, 0, 0, 1);
+	}*/
 
 	//planet position only changes if player moves (everything else as well)
+	//glPushMatrix();
 	drawSphere(PLANET);
+	//glPopMatrix();
 
 	// skybox rotates around planet
 	glPushMatrix();
@@ -354,9 +423,14 @@ void display()
 	//Moon
 	glPushMatrix();
 	float moonRot = 360.0 * day / 2;
-	glRotatef(moonRot, 0.0, 1.0, 0.0);
-	glTranslatef(sinf(moonRot/12) * (planetRadius * 5), 0, cosf(moonRot / 12) * (planetRadius * 5));
+	glRotatef(moonRot, 0, 1, 0);
+	glTranslatef((planetRadius * 5), 0, 0);
+	//glRotatef(-moonRot, 0, 1, 0);
+	//glTranslatef(sinf(moonRot / 12) * (planetRadius * 5), 0, cosf(moonRot / 12) * (planetRadius * 5));
+
+	//glRotatef(moonRot, 0.0, 1.0, 0.0);
 	drawSphere(MOON);
+
 	glPopMatrix();
 
 

@@ -16,25 +16,11 @@
 
 using namespace std;
 
-/* some math.h files don't define pi... */
-#ifndef M_PI
-#define M_PI 3.141592653
-#endif
 
-#define RAD(x) (((x)*M_PI)/180.)
-
-#ifdef __STRICT_ANSI__
-#define sinf(x) ((float)sin((x)))
-#define cosf(x) ((float)cos((x)))
-#define atan2f(x, y) ((float)atan2((x), (y)))
-#endif 
-
-typedef enum sphereType { PLANET, MOON, STAR } sphereType;
 int window;
 
-
-
 // variables needing set
+int playerShouldMove = 0;
 int cubeMapTexture = 1;
 int wantFullScreen = 0;
 int insideSkyBox = 1;
@@ -52,7 +38,7 @@ float StarSpawnMinRadius = StarSpawnMaxRadius - skyBoxEdgeLength * 2;
 int animating = 1;
 float hour = 0.0;
 float day = 0.0;
-float inc = 0.005;
+float inc = 0.05;
 
 // skybox
 GLuint skyboxSideTextures[6];
@@ -75,6 +61,15 @@ string moonTga = "moonLight.tga";
 float playerPosX = 0.0f;
 float playerPosZ = 0.0f;
 float playerPosY = planetRadius + 2;
+
+// world
+float pitch = 0.0f;
+float yaw = 0.0f;
+float roll = 0.0f;
+
+float pitchChange = 0;
+float yawChange = 0;
+float rollChange = 0;
 
 float playerSpeed = skyBoxEdgeLength / 50;
 int leftPressed = 0;     /* flag that is true while mouse moves */

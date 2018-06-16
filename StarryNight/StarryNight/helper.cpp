@@ -16,3 +16,9 @@ int getCountOfNamesContainingString(std::string folder, std::string name)
 	}
 	return count;
 }
+
+void keepFloatBelow360(float *angle)
+{
+	if (*angle <= -360.0f) *angle += 360.0f;
+	else if (*angle >= 360.0f) *angle -= 360.0f;
+}
