@@ -28,13 +28,13 @@ float fillStar(struct star &s, float posMin, float posMax)
 {
 	if (s.size > 0)
 	{
-		s.size -= 0.01f;
+		s.size -= 0.1f;
 		return -1;
 	}
 	//srand(seedCount++);
 	seedCount %= INT_MAX;
 	if (s.starObj == nullptr) s.starObj = gluNewQuadric();
-	s.size = randomFloatBetween(0.1f, 1.5f);
+	s.size = randomFloatBetween(0.2, 0.4);
 	float lengthPos = randomFloatBetween(posMin, posMax);
 	getRandomVectorWithLength(lengthPos, s.vec);
 	return 0;

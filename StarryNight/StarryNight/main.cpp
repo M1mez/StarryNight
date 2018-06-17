@@ -19,8 +19,9 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
 	glutInitWindowSize(1280, 960);
-	glutInitWindowPosition(GLUT_SCREEN_HEIGHT, GLUT_SCREEN_WIDTH);
+	glutInitWindowPosition(0, GLUT_SCREEN_WIDTH);
 	window = glutCreateWindow("Starry Night");
+	//gluPerspective(45, 1280 / 960, 1, 100);
 	glutDisplayFunc(&display);
 	glutReshapeFunc(&resize);
 	glutKeyboardFunc(&keyPressed);
@@ -258,7 +259,7 @@ void mouseMotion(int x, int y) {
 #pragma endregion
 
 #pragma region draw
-void drawSphere(sphereType type, int index = 0)
+void drawSphere(sphereType type, int index)
 {
 	GLUquadricObj *sphere = nullptr;
 	int radius = 0;
@@ -278,7 +279,7 @@ void drawSphere(sphereType type, int index = 0)
 		break;
 	case STAR:
 		star s = stars[index];
-		fillStar(s, starSpawnMinRadius, starSpawnMaxRadius);
+		//fillStar(s, starSpawnMinRadius, starSpawnMaxRadius);
 		sphere = s.starObj;
 		cout << s.size << endl;
 		radius = s.size;
@@ -300,6 +301,31 @@ void drawSphere(sphereType type, int index = 0)
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }
+
+void DrawStar(int index)
+{
+	GLUquadricObj *sphere = nullptr;
+	int radius = 0;
+	GLuint texture = 0;
+
+	star s = stars[index];
+	
+	stars[index].size = stars[index].size - 0.001;
+	if (stars[index].size < 0)
+		fillStar(stars[index], starSpawnMinRadius, starSpawnMaxRadius);
+	sphere = s.starObj;
+	radius = s.size;
+
+	glBegin(GL_QUADS);
+	glutSolidSphere(s.size, 200, 160);
+
+	float alpha = 0.5;
+	float inc = 0.02;
+	float size = s.size;
+
+	glEnd();
+}
+
 void drawSkyBox()
 {
 	int textureCount = 0;
@@ -421,7 +447,9 @@ void display()
 
 	//planet position only changes if player moves (everything else as well)
 	//glPushMatrix();
-	drawSphere(PLANET);
+	GLfloat planetcolors[] = {1,1,1,1};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, planetcolors);
+	drawSphere(PLANET,0);
 	//glPopMatrix();
 
 	// skybox rotates around planet
@@ -429,33 +457,42 @@ void display()
 	glRotatef(360 * hour / 360, 0.0, 1.0, 0.0);
 	//gluPerspective(45.0f, 20, 0.5f, 300.0f);
 	drawSkyBox();
-	for (int i = 0; i < starCount; i++)
+	//glColor4f(1, 1, 0.2, 1);
+	GLfloat starcolors[] = { 1,1,0.2,1 };
+	GLfloat starcolors2[] = { 1,1,0.2 };
+	glPushMatrix();
+	GLfloat black[] = { 0,0,0,1 };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, starcolors);
+	for (int i = 0; i < 5; i++)
 	{
 		glPushMatrix();
-		glColor4f(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2],1);
 		//fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
 		//cout << stars[i].vec[0] << "  " << stars[i].vec[1] << "  " << stars[i].vec[2] << endl;
 		//cout << stars[i].size << endl;
 		glTranslatef(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2]);
-		drawSphere(STAR, i);
+		DrawStar(i);
 		glPopMatrix();
 	}
 	glPopMatrix();
-
+	//glColor4f(1, 1, 1, 1);
 	//Moon
 	glPushMatrix();
 	float moonRot = 360.0 * day / 2;
 	glRotatef(moonRot, 0, 1, 0);
-	glTranslatef((planetRadius * 5), 0, 0);
+	
+	glTranslatef((planetRadius * 2.5), 0, 0);
+	
 	//glRotatef(-moonRot, 0, 1, 0);
 	//glTranslatef(sinf(moonRot / 12) * (planetRadius * 5), 0, cosf(moonRot / 12) * (planetRadius * 5));
 
 	//glRotatef(moonRot, 0.0, 1.0, 0.0);
-	drawSphere(MOON);
 
+	GLfloat moonpos[] = { (planetRadius * 2.5),0,0,1 };
+	GLfloat mooncolors[] = { 1,1,1,1 };
+	glLightfv(GL_LIGHT0, GL_POSITION, moonpos);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mooncolors);
+	drawSphere(MOON,0);
 	glPopMatrix();
-
-
 	glutSwapBuffers();
 }
 #pragma endregion
@@ -468,10 +505,19 @@ void init(int width, int height)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
 	glShadeModel(GL_SMOOTH);
-	//glEnable(GL_LIGHTING);
+
+	GLfloat whitelight[] = { 1,1,1,1 };
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whitelight);
+	glLightfv(GL_LIGHT0, GL_EMISSION, whitelight);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, whitelight);
+
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
 
 	resize(width, height);
 

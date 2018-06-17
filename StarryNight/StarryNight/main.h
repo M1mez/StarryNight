@@ -23,8 +23,8 @@ string singleCubeTga = "crate.tga";
 
 // self setting variables
 int amountOfCubemaps;
-float starSpawnMaxRadius = (skyBoxEdgeLength / 2);
-float starSpawnMinRadius = starSpawnMaxRadius - 10;
+float starSpawnMaxRadius = (skyBoxEdgeLength);
+float starSpawnMinRadius = starSpawnMaxRadius -10;
 
 int animating = 1;
 float hour = 0.0;
@@ -44,12 +44,12 @@ string planetTga = "earthColour.tga";
 
 // moon
 GLUquadricObj *moon;
-float moonRadius = planetRadius / 3.7;
+float moonRadius = planetRadius / 8;
 GLuint moonTexture;
 string moonTga = "moonLight.tga";
 
 // star
-const int starCount = 20;
+const int starCount = 10;
 struct star stars[starCount];
 
 
