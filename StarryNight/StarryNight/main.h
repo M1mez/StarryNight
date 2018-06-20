@@ -15,7 +15,7 @@ int playerShouldMove = 0;
 int cubeMapTexture = 1;
 int wantFullScreen = 0;
 int insideSkyBox = 1;
-float skyBoxEdgeLength = 50.0f;
+float skyBoxEdgeLength = 500.0f;
 string skyboxFolder = "skyboxes/";
 string sphereFolder = "spheres/";
 
@@ -49,7 +49,7 @@ GLuint moonTexture;
 string moonTga = "moonLight.tga";
 
 // star
-const int starCount = 20;
+const int starCount = 75;
 struct star stars[starCount];
 
 

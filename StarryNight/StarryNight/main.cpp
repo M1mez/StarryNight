@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	glutKeyboardFunc(&keyPressed);
 	glutSpecialFunc(&specialKeyPressed);
 	init(1280, 960);
-	glutTimerFunc(15, timer, 1);
+	glutTimerFunc(30, timer, 1);
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
 	if (wantFullScreen) glutFullScreen();
@@ -54,7 +54,7 @@ void resize(int width, int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -295,7 +295,9 @@ void drawSphere(sphereType type, int index = 0)
 
 	gluQuadricDrawStyle(sphere, GLU_FILL);
 	gluQuadricTexture(sphere, 1);
-	gluSphere(sphere, radius, 50, 50);
+	if (type == PLANET)
+	gluSphere(sphere, radius, 80, 100);
+	else gluSphere(sphere, radius, 25, 25);
 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
@@ -432,7 +434,7 @@ void display()
 	for (int i = 0; i < starCount; i++)
 	{
 		glPushMatrix();
-		glColor4f(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2],1);
+		//glColor4f(stars[i].vec[0], stars[i].vec[1], stars[i].vec[2],1);
 		//fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
 		//cout << stars[i].vec[0] << "  " << stars[i].vec[1] << "  " << stars[i].vec[2] << endl;
 		//cout << stars[i].size << endl;
@@ -541,7 +543,7 @@ void init(int width, int height)
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glBindTexture(GL_TEXTURE_2D, skyboxSingleTexture);
-		//TODO WHERE IS GL_CLAMP_TO_BORDER????
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
