@@ -10,6 +10,7 @@ int main(int argc, char **argv)
 	amountOfCubemaps = getCountOfNamesContainingString(skyboxFolder, skyboxString);
 	skyboxString += char('0' + rand() % amountOfCubemaps + 1);
 
+	//create the stars
 	for (int i = 0; i < starCount; i++)
 	{
 		fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
@@ -241,9 +242,16 @@ void mouseMotion(int x, int y) {
 #pragma endregion
 
 #pragma region draw
-
+/*
+<summary>
+Draw's the Moon on the Display
+Sets the Reflected Color and Texture
+</summary>
+<param> </param>
+*/
 void drawMoon()
 {
+
 	glColor4f(1, 1, 1, 1);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 
@@ -267,6 +275,15 @@ void drawMoon()
 
 }
 
+/*
+<summary>
+Draw's the Sun on the Display
+Sets the ambient color and texture
+Also enables and disables the white light from the sun's own lightsource
+to make sure only the sun gets the ambient light
+</summary>
+<param> </param>
+*/
 void drawSun()
 {
 	glLightfv(GL_LIGHT1, GL_POSITION, sunpos);
@@ -297,6 +314,13 @@ void drawSun()
 	glLightfv(GL_LIGHT1, GL_AMBIENT, blacklight);
 }
 
+/*
+<summary>
+Draw's the Planet on the Display
+Sets the Reflected Color and Texture
+</summary>
+<param> </param>
+*/
 void drawPlanet()
 {
 	glColor4f(1, 1, 1, 1);
@@ -321,10 +345,19 @@ void drawPlanet()
 	glDisable(GL_TEXTURE_2D);
 }
 
+/*
+<summary>
+Draw's a single star
+Sets the reflected Color
+Also changes the size of the star
+</summary>
+<param> </param>
+*/
 void drawStar(int index)
 {
 	star s = stars[index];
 
+	//makes the star bigger or smaller depening on the direction, also changes the direction if spezifik boundarys are meet
 	if (stars[index].shrinking) {
 		stars[index].size -= stars[index].shrinkSpeed;
 		if (stars[index].size <= 0) stars[index].shrinking = 0;
@@ -350,6 +383,13 @@ void drawStar(int index)
 	glEnd();
 }
 
+/*
+<summary>
+Drawes the Skybox
+Also sets the texture
+</summary>
+<param> </param>
+*/
 void drawSkyBox()
 {
 	int textureCount = 0;
@@ -497,6 +537,11 @@ void display()
 #pragma endregion
 
 #pragma region init
+/*
+<summary>
+</summary>
+<param> </param>
+*/
 void init(int width, int height)
 {
 	planet = gluNewQuadric();
@@ -512,7 +557,8 @@ void init(int width, int height)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 
-
+	//the Lightsource gives out a diffuse white light and a ambietnt black light
+	//the ambient light gets changes in the draw sun function so that only the sun is light
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, whitelight);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, blacklight);
 
@@ -524,6 +570,11 @@ void init(int width, int height)
 	LoadTextures();
 }
 
+/*
+<summary>
+</summary>
+<param> </param>
+*/
 void LoadTextures()
 {
 	GLint format;

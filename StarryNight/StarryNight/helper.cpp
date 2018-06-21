@@ -2,7 +2,13 @@
 
 using namespace std;
 namespace fs = experimental::filesystem;
+int seedCount = 0;
 
+/*
+<summary>
+</summary>
+<param> </param>
+*/
 int getCountOfNamesContainingString(std::string folder, std::string name)
 {
 	stringstream ss;
@@ -17,13 +23,29 @@ int getCountOfNamesContainingString(std::string folder, std::string name)
 	return count;
 }
 
+/*
+<summary>
+makes sure a given float never goes above 360 in value
+</summary>
+<param name="angle">the given float</param>
+*/
 void keepFloatBelow360(float *angle)
 {
 	if (*angle <= -360.0f) *angle += 360.0f;
 	else if (*angle >= 360.0f) *angle -= 360.0f;
 }
 
-int seedCount = 0;
+
+
+/*
+<summary>
+filles the star with random values for size,shrinkspeed, and position
+the position is bound with an upper and lower limit
+</summary>
+<param name="s"> </param>
+<param name="posMin">lower limit of position </param>
+<param name="posMax">upper limit of position </param>
+*/
 float fillStar(struct star &s, float posMin, float posMax)
 {
 	seedCount %= INT_MAX;
@@ -36,6 +58,14 @@ float fillStar(struct star &s, float posMin, float posMax)
 	return 0;
 }
 
+/*
+<summary>
+a given "vector"(float array) is filled with random values between -1 and 1
+the "vector" is also normalized (lenght of 1)
+</summary>
+<param name="lenght"> lenght of the given vector </param>
+<param name="vec"> given vector </param>
+*/
 void getRandomVectorWithLength(float length, float *vec)
 {
 	vec[0] = randomFloatBetween(-1.0f, 1.0f);
@@ -49,11 +79,25 @@ void getRandomVectorWithLength(float length, float *vec)
 	vec[2] = vec[2] / normScalar * length;
 }
 
+/*
+<summary>
+gives a random float between a lower bound and an upper bound
+</summary>
+<param name="lo">lower bound</param>
+<param name="hi">upper bound</param>
+*/
 float randomFloatBetween(float lo, float hi)
 {
 	return lo + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (hi - lo)));
 }
 
+/*
+<summary>
+gives a random int between a lower bound and an upper bound
+</summary>
+<param name="lo">lower bound</param>
+<param name="hi">upper bound</param>
+*/
 int randomIntBetween(int lo, int hi)
 {
 	return rand() % hi + lo;
