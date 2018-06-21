@@ -1,9 +1,7 @@
-
 #include "main.h"
 #include "glut.h"
 
 #define GL_CLAMP_TO_EDGE 0x812F
-
 
 int main(int argc, char **argv)
 {
@@ -55,7 +53,7 @@ void resize(int width, int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (float)width / (float)height, 0.1f, skyBoxEdgeLength * 2);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -90,10 +88,10 @@ void specialKeyPressed(int key, int x, int y)
 			pitch += cosf(yrotrad);
 			//yaw += sinf(yrotrad);
 			roll += sinf(yrotrad);
-/*
-			pitch -= cxp * -syp;
-			yaw += sxp;
-			roll -= cxp * -cyp;*/
+			/*
+						pitch -= cxp * -syp;
+						yaw += sxp;
+						roll -= cxp * -cyp;*/
 
 		}
 		glutPostRedisplay();
@@ -277,13 +275,6 @@ void drawSphere(sphereType type, int index)
 		radius = moonRadius;
 		texture = moonTexture;
 		break;
-	case STAR:
-		star s = stars[index];
-		//fillStar(s, starSpawnMinRadius, starSpawnMaxRadius);
-		sphere = s.starObj;
-		cout << s.size << endl;
-		radius = s.size;
-		break;
 	default: break;
 	}
 
@@ -296,7 +287,14 @@ void drawSphere(sphereType type, int index)
 
 	gluQuadricDrawStyle(sphere, GLU_FILL);
 	gluQuadricTexture(sphere, 1);
-	gluSphere(sphere, radius, 50, 50);
+	if (type == PLANET)
+	{
+		gluSphere(sphere, radius, 100, 80);
+
+	}
+	else
+		gluSphere(sphere, radius, 50, 50);
+
 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
@@ -309,7 +307,7 @@ void DrawStar(int index)
 	GLuint texture = 0;
 
 	star s = stars[index];
-	
+
 	stars[index].size = stars[index].size - 0.001;
 	if (stars[index].size < 0)
 		fillStar(stars[index], starSpawnMinRadius, starSpawnMaxRadius);
@@ -317,7 +315,9 @@ void DrawStar(int index)
 	radius = s.size;
 
 	glBegin(GL_QUADS);
-	glutSolidSphere(s.size, 200, 160);
+	glColor4f(1, 1, 0.2, 1);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glutSolidSphere(s.size, 25, 25);
 
 	float alpha = 0.5;
 	float inc = 0.02;
@@ -426,8 +426,8 @@ void display()
 	glRotatef(angle_x, 1, 0, 0);*/
 
 	glTranslatef(0, -(planetRadius + 2), 0);
-
-
+	GLfloat earthpos[] = { 0,-(planetRadius + 2),0 };
+	glLightfv(GL_LIGHT1, GL_POSITION, earthpos);
 	glRotatef(yaw, 0.0f, 1.0f, 0.0f);
 	glRotatef(pitch, 1.0f, 0.0f, 0.0f);
 	glRotatef(roll, 0.0f, 0.0f, 1.0f);
@@ -447,10 +447,17 @@ void display()
 
 	//planet position only changes if player moves (everything else as well)
 	//glPushMatrix();
-	GLfloat planetcolors[] = {1,1,1,1};
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, planetcolors);
-	drawSphere(PLANET,0);
-	//glPopMatrix();
+
+	GLfloat black[] = { 0,0,0,1 };
+	GLfloat planetcolors[] = { 1,1,1,1 };
+	//glGetMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black);
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, planetcolors);
+
+	glPushMatrix();
+	glColor4f(1, 1, 1, 1);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	drawSphere(PLANET, 0);
+	glPopMatrix();
 
 	// skybox rotates around planet
 	glPushMatrix();
@@ -461,9 +468,8 @@ void display()
 	GLfloat starcolors[] = { 1,1,0.2,1 };
 	GLfloat starcolors2[] = { 1,1,0.2 };
 	glPushMatrix();
-	GLfloat black[] = { 0,0,0,1 };
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, starcolors);
-	for (int i = 0; i < 5; i++)
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, starcolors);
+	for (int i = 0; i < 20; i++)
 	{
 		glPushMatrix();
 		//fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
@@ -479,19 +485,21 @@ void display()
 	glPushMatrix();
 	float moonRot = 360.0 * day / 2;
 	glRotatef(moonRot, 0, 1, 0);
-	
-	glTranslatef((planetRadius * 2.5), 0, 0);
-	
+
+	glTranslatef((planetRadius * 3), 0, 0);
+
 	//glRotatef(-moonRot, 0, 1, 0);
 	//glTranslatef(sinf(moonRot / 12) * (planetRadius * 5), 0, cosf(moonRot / 12) * (planetRadius * 5));
 
 	//glRotatef(moonRot, 0.0, 1.0, 0.0);
 
-	GLfloat moonpos[] = { (planetRadius * 2.5),0,0,1 };
+	GLfloat moonpos[] = { (planetRadius * 3),0,0,1 };
 	GLfloat mooncolors[] = { 1,1,1,1 };
 	glLightfv(GL_LIGHT0, GL_POSITION, moonpos);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mooncolors);
-	drawSphere(MOON,0);
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mooncolors);
+	glColor4f(1, 1, 1, 1);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+	drawSphere(MOON, 0);
 	glPopMatrix();
 	glutSwapBuffers();
 }
@@ -509,14 +517,21 @@ void init(int width, int height)
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 
 	GLfloat whitelight[] = { 1,1,1,1 };
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whitelight);
-	glLightfv(GL_LIGHT0, GL_EMISSION, whitelight);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, whitelight);
+	GLfloat attutation[] = { planetRadius/15000 };
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, whitelight);
+	//glLightfv(GL_LIGHT0, GL_EMISSION, whitelight);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, whitelight);
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, whitelight);
+	glLightfv(GL_LIGHT1, GL_LINEAR_ATTENUATION, attutation);
+
 
 	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHTING);
 
 	resize(width, height);
@@ -553,7 +568,7 @@ void init(int width, int height)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 			// Upload the texture bitmap. 
 			w = info->width;

@@ -34,7 +34,7 @@ float fillStar(struct star &s, float posMin, float posMax)
 	//srand(seedCount++);
 	seedCount %= INT_MAX;
 	if (s.starObj == nullptr) s.starObj = gluNewQuadric();
-	s.size = randomFloatBetween(0.2, 0.4);
+	s.size = randomFloatBetween(1, 1.2);
 	float lengthPos = randomFloatBetween(posMin, posMax);
 	getRandomVectorWithLength(lengthPos, s.vec);
 	return 0;
