@@ -94,15 +94,9 @@ void tgaLoadImageData(FILE *file, tgaInfo *info) {
 }
 
 tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side, string folder) {
-	// folder + filename + '/' (1) + filename  + side identifier (3) + fileending (4) + null terminator (1)
 	string result = folder + filename + '/' + filename;
-		//malloc(strlen(folder) + strlen(filename) + 1 + strlen(filename) + 3 + 4 + 1);
 
 #pragma warning(disable:4996)
-	/*strcpy(result, folder);
-	strcat(result, filename);
-	strcat(result, "/");
-	strcat(result, filename);*/
 
 	string right = "_right1";
 	string left = "_left2";

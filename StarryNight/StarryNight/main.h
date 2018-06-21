@@ -5,6 +5,7 @@
 
 
 
+
 using namespace std;
 
 
@@ -26,7 +27,7 @@ int amountOfCubemaps;
 float starSpawnMaxRadius = (skyBoxEdgeLength / 2);
 float starSpawnMinRadius = starSpawnMaxRadius - 10;
 
-int animating = 1;
+//int animating = 1;
 float hour = 0.0;
 float day = 0.0;
 float inc = 0.05;
@@ -38,20 +39,33 @@ string skyboxString = "starfield";
 
 // planet
 GLUquadricObj *planet;
-float planetRadius = skyBoxEdgeLength / 6; //fifth of skybox, radius is half that
+float planetRadius = skyBoxEdgeLength / 6;
 GLuint planetTexture;
 string planetTga = "earthColour.tga";
+GLfloat earthpos[] = { 0,-(planetRadius + 2),0 };
+GLfloat planetcolors[] = { 1,1,1,1 };
 
 // moon
 GLUquadricObj *moon;
-float moonRadius = planetRadius / 3.7;
+float moonRadius = planetRadius / 8;
 GLuint moonTexture;
 string moonTga = "moonLight.tga";
+GLfloat moonpos[] = { (planetRadius * 2),0,0,1 };
+GLfloat mooncolors[] = { 1,1,1,1 };
+
+// sun
+GLUquadricObj *sun;
+float sunRadius = planetRadius / 3;
+GLuint sunTexture;
+string sunTga = "sun.tga";
+GLfloat sunpos[] = { (planetRadius * 3),0,0,1 };
+GLfloat suncolors[] = { 1,1,1,1 };
 
 // star
-const int starCount = 75;
+const int starCount = 150;
 struct star stars[starCount];
-
+GLfloat starcolors[] = { 1,1,0.2,1 };
+float shrinkSpeed = 0.2f;
 
 // player
 float playerPosX = 0.0f;
@@ -66,6 +80,10 @@ float roll = 0.0f;
 float pitchChange = 0;
 float yawChange = 0;
 float rollChange = 0;
+
+GLfloat whitelight[] = { 1,1,1,1 };
+GLfloat blacklight[] = { 0,0,0,1 };
+GLfloat attenuation[] = { planetRadius / 100 };
 
 float playerSpeed = skyBoxEdgeLength / 50;
 int leftPressed = 0;     /* flag that is true while mouse moves */
@@ -82,5 +100,6 @@ void mouse(int button, int state, int x, int y);
 void mouseMotion(int x, int y);
 void display(void);
 void init(int width, int height);
-void timer(int value);
+void timer(int value); 
+void LoadTextures();
 

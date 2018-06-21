@@ -6,10 +6,12 @@
 #include <cstdlib> // for exit
 #include <Windows.h>
 #include <cstdio>
+#include <ctime>
 #include <string>
 #include <cstring>
+
+
 #include <cmath>
-#include <ctime>
 #include <iostream>
 #include "helper.h"
 #include "tga.h"
@@ -23,6 +25,9 @@ struct star {
 	GLUquadricObj *starObj;
 	float size;
 	float vec[3];
+	int shrinking = 1;
+	float shrinkSpeed;
+	float maxSize;
 };
 
 #endif

@@ -26,15 +26,11 @@ void keepFloatBelow360(float *angle)
 int seedCount = 0;
 float fillStar(struct star &s, float posMin, float posMax)
 {
-	if (s.size > 0)
-	{
-		s.size -= 0.1f;
-		return -1;
-	}
-	//srand(seedCount++);
 	seedCount %= INT_MAX;
 	if (s.starObj == nullptr) s.starObj = gluNewQuadric();
-	s.size = randomFloatBetween(0.2, 0.4);
+	s.maxSize = randomFloatBetween(0.2, 0.5);
+	s.shrinkSpeed = randomFloatBetween(s.maxSize / 20, s.maxSize / 3);
+	s.size = randomFloatBetween(0.1, s.maxSize);
 	float lengthPos = randomFloatBetween(posMin, posMax);
 	getRandomVectorWithLength(lengthPos, s.vec);
 	return 0;
