@@ -1,6 +1,5 @@
 
 #include "main.h"
-#include "glut.h"
 
 #define GL_CLAMP_TO_EDGE 0x812F
 
@@ -64,7 +63,7 @@ void specialKeyPressed(int key, int x, int y)
 {
 	float yrotrad = RAD(angle_y);
 
-	cout << "sin: " << sinf(yrotrad) << " cos: " << cosf(yrotrad) << endl;
+	//cout << "sin: " << sinf(yrotrad) << " cos: " << cosf(yrotrad) << endl;
 
 	keepFloatBelow360(&pitch);
 	keepFloatBelow360(&yaw);
@@ -86,7 +85,6 @@ void specialKeyPressed(int key, int x, int y)
 		}
 		glutPostRedisplay();
 		break;
-#pragma rest keys
 		/*case GLUT_KEY_DOWN:
 			if (playerShouldMove)
 			{
@@ -123,7 +121,6 @@ void specialKeyPressed(int key, int x, int y)
 			}
 			glutPostRedisplay();
 			break;*/
-#pragma endregion
 	default: break;
 	}
 }
@@ -331,7 +328,8 @@ void drawStar(int index)
 	if (stars[index].shrinking) {
 		stars[index].size -= stars[index].shrinkSpeed;
 		if (stars[index].size <= 0) stars[index].shrinking = 0;
-	} else
+	}
+	else
 	{
 		stars[index].size += stars[index].shrinkSpeed;
 		if (stars[index].size >= stars[index].maxSize) stars[index].shrinking = 1;
@@ -494,6 +492,8 @@ void display()
 
 	glutSwapBuffers();
 }
+
+
 #pragma endregion
 
 #pragma region init

@@ -64,7 +64,7 @@ GLfloat suncolors[] = { 1,1,1,1 };
 // star
 const int starCount = 150;
 struct star stars[starCount];
-GLfloat starcolors[] = { 1,1,0.2,1 };
+GLfloat starcolors[] = { 1.0f,1.0f,0.2f,1.0f };
 float shrinkSpeed = 0.2f;
 
 // player

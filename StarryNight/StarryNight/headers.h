@@ -19,6 +19,7 @@
 #include <filesystem>
 #include <gl\GL.h>
 #include <gl\GLU.h>
+#include "glut.h"
 
 
 struct star {
