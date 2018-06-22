@@ -90,6 +90,16 @@ void tgaLoadImageData(FILE *file, tgaInfo *info) {
 		}
 }
 
+/*
+<summary>
+Method to load a tga texture from a given folder.
+Used for skybox, hence the enum cubeSide parameter
+</summary>
+<param name="filename">the specified skybox texture folder</param>
+<param name="inside">specifies whether one is inside the cube or outside</param>
+<param name="side">specifies the exact side of the cube</param>
+<param name="folder">specifies the folder in which the skybox texture folders are contained</param>
+*/
 tgaInfo* tgaFromFolder(const char *filename, int inside, cubeSide side, string folder) {
 	string result = folder + filename + '/' + filename;
 

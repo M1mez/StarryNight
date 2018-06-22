@@ -6,8 +6,10 @@ int seedCount = 0;
 
 /*
 <summary>
+get the count of folders of a given path, containing specified name
 </summary>
-<param> </param>
+<param name = "folder">the path in which we look for subfolders</param>
+<param name = "name">the name we are looking for</param>
 */
 int getCountOfNamesContainingString(std::string folder, std::string name)
 {
@@ -25,7 +27,7 @@ int getCountOfNamesContainingString(std::string folder, std::string name)
 
 /*
 <summary>
-makes sure a given float never goes above 360 in value
+makes sure a given float never goes above |(-) 360| in value
 </summary>
 <param name="angle">the given float</param>
 */
@@ -39,8 +41,8 @@ void keepFloatBelow360(float *angle)
 
 /*
 <summary>
-filles the star with random values for size,shrinkspeed, and position
-the position is bound with an upper and lower limit
+fills the star struct instance with random values for size,shrinkspeed, and position
+the length of the vector from origin is bound with an lower and upper limit
 </summary>
 <param name="s"> </param>
 <param name="posMin">lower limit of position </param>
@@ -61,7 +63,7 @@ float fillStar(struct star &s, float posMin, float posMax)
 /*
 <summary>
 a given "vector"(float array) is filled with random values between -1 and 1
-the "vector" is also normalized (lenght of 1)
+the "vector" is also normalized (length of 1)
 </summary>
 <param name="lenght"> lenght of the given vector </param>
 <param name="vec"> given vector </param>

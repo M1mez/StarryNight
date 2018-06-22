@@ -15,7 +15,6 @@ int insideSkyBox = 1;
 float skyBoxEdgeLength = 500.0f;
 string skyboxFolder = "skyboxes/";
 string sphereFolder = "spheres/";
-
 string singleCubeTga = "crate.tga";
 
 // self setting variables
@@ -23,7 +22,6 @@ int amountOfCubemaps;
 float starSpawnMaxRadius = (skyBoxEdgeLength / 2);
 float starSpawnMinRadius = starSpawnMaxRadius - 10;
 
-//int animating = 1;
 float hour = 0.0;
 float day = 0.0;
 float inc = 0.05;
@@ -61,7 +59,6 @@ GLfloat suncolors[] = { 1,1,1,1 };
 const int starCount = 150;
 struct star stars[starCount];
 GLfloat starcolors[] = { 1.0f,1.0f,0.2f,1.0f };
-float shrinkSpeed = 0.2f;
 
 // player
 float playerPosX = 0.0f;

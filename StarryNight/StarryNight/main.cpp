@@ -7,14 +7,13 @@
 int main(int argc, char **argv)
 {
 	srand(time(nullptr));
+
+	PlaySound(TEXT("music.wav"), nullptr, SND_ASYNC | SND_LOOP);
 	amountOfCubemaps = getCountOfNamesContainingString(skyboxFolder, skyboxString);
 	skyboxString += char('0' + rand() % amountOfCubemaps + 1);
 
 	//create the stars
-	for (int i = 0; i < starCount; i++)
-	{
-		fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
-	}
+	for (int i = 0; i < starCount; i++) fillStar(stars[i], starSpawnMinRadius, starSpawnMaxRadius);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
@@ -60,6 +59,11 @@ void resize(int width, int height)
 }
 
 #pragma region keyPressed
+/*
+<summary>
+Reaction on keyboard special key presses
+</summary>
+*/
 void specialKeyPressed(int key, int x, int y)
 {
 	float yrotrad = RAD(angle_y);
@@ -86,46 +90,14 @@ void specialKeyPressed(int key, int x, int y)
 		}
 		glutPostRedisplay();
 		break;
-		/*case GLUT_KEY_DOWN:
-			if (playerShouldMove)
-			{
-				playerPosX += sinf(yrotrad) * playerSpeed / 10;
-				playerPosZ -= cosf(yrotrad) * playerSpeed / 10;
-			}
-			else
-			{
-
-			}
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_RIGHT:
-			if (playerShouldMove)
-			{
-				playerPosX -= cosf(yrotrad) * playerSpeed / 25;
-				playerPosZ -= sinf(yrotrad) * playerSpeed / 25;
-			}
-			else
-			{
-
-			}
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_LEFT:
-			if (playerShouldMove)
-			{
-				playerPosX += cosf(yrotrad) * playerSpeed / 25;
-				playerPosZ += sinf(yrotrad) * playerSpeed / 25;
-			}
-			else
-			{
-
-			}
-			glutPostRedisplay();
-			break;*/
 	default: break;
 	}
 }
-
+/*
+<summary>
+Reaction on keyboard standard key presses
+</summary>
+*/
 void keyPressed(unsigned char key, int x, int y)
 {
 	switch (key) {
@@ -180,6 +152,11 @@ void keyPressed(unsigned char key, int x, int y)
 #pragma endregion
 
 #pragma region mouse
+/*
+<summary>
+Reaction on mouse button presses
+</summary>
+*/
 void mouse(int button, int state, int x, int y)
 {
 	switch (button) {
@@ -211,19 +188,18 @@ void mouse(int button, int state, int x, int y)
 
 	glutPostRedisplay();
 }
-void mouseMotion(int x, int y) {
 
-	cout << "x: " << angle_x << " y: " << angle_y << endl;
+
+/*
+<summary>
+Changes the angles for gluLookAt to turn the camera
+</summary>
+*/
+void mouseMotion(int x, int y) {
 	if (leftPressed) {
 		angle_y = angle_y + (x - begin_x);
 		float newAngle = angle_x + (y - begin_y);
-		if (newAngle >= 90)
-		{
-			begin_x = x;
-			begin_y = y;
-			return;
-		}
-		if (newAngle <= -90)
+		if (newAngle >= 90 || newAngle <= -90)
 		{
 			begin_x = x;
 			begin_y = y;
@@ -244,7 +220,7 @@ void mouseMotion(int x, int y) {
 #pragma region draw
 /*
 <summary>
-Draw's the Moon on the Display
+Draws the moon on the Display
 Sets the Reflected Color and Texture
 </summary>
 <param> </param>
@@ -277,7 +253,7 @@ void drawMoon()
 
 /*
 <summary>
-Draw's the Sun on the Display
+Draws the Sun on the Display
 Sets the ambient color and texture
 Also enables and disables the white light from the sun's own lightsource
 to make sure only the sun gets the ambient light
@@ -316,7 +292,7 @@ void drawSun()
 
 /*
 <summary>
-Draw's the Planet on the Display
+Draws the Planet on the Display
 Sets the Reflected Color and Texture
 </summary>
 <param> </param>
@@ -347,7 +323,7 @@ void drawPlanet()
 
 /*
 <summary>
-Draw's a single star
+Draws a single star
 Sets the reflected Color
 Also changes the size of the star
 </summary>
@@ -357,7 +333,7 @@ void drawStar(int index)
 {
 	star s = stars[index];
 
-	//makes the star bigger or smaller depening on the direction, also changes the direction if spezifik boundarys are meet
+	//makes the star bigger or smaller depending on the direction, also changes the direction if spezific boundaries are met
 	if (stars[index].shrinking) {
 		stars[index].size -= stars[index].shrinkSpeed;
 		if (stars[index].size <= 0) stars[index].shrinking = 0;
@@ -374,18 +350,14 @@ void drawStar(int index)
 	glBegin(GL_QUADS);
 	glColor4f(1, 1, 0.2, 1);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glutSolidSphere(s.size, 4, 4);
-
-	float alpha = 0.5;
-	float inc = 0.02;
-	float size = s.size;
-
+	glutSolidSphere(s.size, 25, 25);
+	
 	glEnd();
 }
 
 /*
 <summary>
-Drawes the Skybox
+Draws the Skybox
 Also sets the texture
 </summary>
 <param> </param>
@@ -509,6 +481,7 @@ void display()
 #pragma region stars
 	glPushMatrix();
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, starcolors);
+	glLightfv(GL_LIGHT2, GL_AMBIENT, whitelight);
 
 	for (int i = 0; i < starCount; i++)
 	{
@@ -517,6 +490,7 @@ void display()
 		drawStar(i);
 		glPopMatrix();
 	}
+	glLightfv(GL_LIGHT2, GL_AMBIENT, blacklight);
 	glPopMatrix();
 #pragma endregion
 
@@ -537,11 +511,6 @@ void display()
 #pragma endregion
 
 #pragma region init
-/*
-<summary>
-</summary>
-<param> </param>
-*/
 void init(int width, int height)
 {
 	planet = gluNewQuadric();
@@ -561,8 +530,10 @@ void init(int width, int height)
 	//the ambient light gets changes in the draw sun function so that only the sun is light
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, whitelight);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, blacklight);
+	glLightfv(GL_LIGHT2, GL_AMBIENT, blacklight);
 
 	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
 	glEnable(GL_LIGHTING);
 
 	resize(width, height);
@@ -572,6 +543,8 @@ void init(int width, int height)
 
 /*
 <summary>
+Method to load all needed textures.
+Outsourced in extra method to keep init function clear
 </summary>
 <param> </param>
 */
