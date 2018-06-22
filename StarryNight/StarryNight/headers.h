@@ -3,6 +3,8 @@
 #ifndef HEADERS_H_INCLUDED
 #define HEADERS_H_INCLUDED
 
+//include of all header files in a central header
+
 #include <cstdlib> // for exit
 #include <Windows.h>
 #include <cstdio>
@@ -20,7 +22,6 @@
 #include <gl\GL.h>
 #include <gl\GLU.h>
 #include "glut.h"
-
 
 struct star {
 	GLUquadricObj *starObj;

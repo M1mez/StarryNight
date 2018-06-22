@@ -3,9 +3,6 @@
 
 #include "tga.h"
 
-
-
-
 // this variable is used for image series
 static int savedImages = 0;
 
